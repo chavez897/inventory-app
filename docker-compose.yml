@@ -31,7 +31,7 @@ services:
   db:
     image: mysql:5.7
     environment:
-      MYSQL_DATABASE: 'inventory-db'
+      MYSQL_DATABASE: 'inventory_db'
       MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
     volumes:
       - local_mysql_data:/var/lib/mysql
