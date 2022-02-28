@@ -1,13 +1,43 @@
 version: '3'
 
+volumes:
+  local_mysql_data: {}
+
+
+networks:
+  inventory_network:
+    name: inventory_network
+    driver: bridge
+    ipam:
+      driver: default
 
 services:
   app:
     build:
       context: .
+    depends_on:
+      - db
     ports:
       - "8000:8000"
     volumes:
       - ./app:/app
     command: >
       sh -c "python mmanage.py runserver 0.0.0.0:8000"
+    networks:
+      inventory_network:
+        aliases:
+          - app
+  
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: 'inventory-db'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+    volumes:
+      - local_mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      inventory_network:
+        aliases:
+          - db
