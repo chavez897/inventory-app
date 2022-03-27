@@ -1,9 +1,10 @@
 import React from "react";
-
-import { ListProductsScreen } from "./components/listProductsScreen";
+import { ProductsScreen } from "./components/productsScreen";
 
 export const InventoryApp = () => {
   return (
-      <ListProductsScreen />
+    <div className="bg-dark">
+      <ProductsScreen />
+    </div>
   );
 };
