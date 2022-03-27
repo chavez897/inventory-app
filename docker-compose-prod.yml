@@ -1,0 +1,59 @@
+version: '3'
+
+volumes:
+  local_mysql_data: {}
+
+
+networks:
+  inventory_network_prod:
+    name: inventory_network_prod
+    driver: bridge
+    ipam:
+      driver: default
+
+services:
+  app:
+    container_name: django-prod
+    build:
+      context: .
+      dockerfile: Django-Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+    networks:
+      inventory_network_prod:
+        aliases:
+          - app
+  
+  db:
+    container_name: mysql-prod
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: 'inventory_db'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+    volumes:
+      - local_mysql_data:/var/lib/mysql
+    ports:
+      - "3316:3306"
+    networks:
+      inventory_network_prod:
+        aliases:
+          - db
+  
+
+  react:
+    container_name: react-prod
+    build:
+      context: .
+      dockerfile: React-Prod-Dockerfile
+    ports:
+      - 80:80
+    networks:
+      inventory_network_prod:
+        aliases:
+          - react
