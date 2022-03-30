@@ -5,8 +5,13 @@ volumes:
 
 
 networks:
-  inventory_network_prod:
-    name: inventory_network_prod
+  inventory_network_prod_backend:
+    name: inventory_network_prod_backend
+    driver: bridge
+    ipam:
+      driver: default
+  inventory_network_prod_frontend:
+    name: inventory_network_prod_frontend
     driver: bridge
     ipam:
       driver: default
@@ -26,9 +31,12 @@ services:
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
     networks:
-      inventory_network_prod:
+      inventory_network_prod_backend:
         aliases:
-          - app
+          - app_back
+      inventory_network_prod_frontend:
+        aliases:
+          - app_front
   
   db:
     container_name: mysql-prod
@@ -38,10 +46,8 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
     volumes:
       - local_mysql_data:/var/lib/mysql
-    ports:
-      - "3316:3306"
     networks:
-      inventory_network_prod:
+      inventory_network_prod_backend:
         aliases:
           - db
   
@@ -54,6 +60,6 @@ services:
     ports:
       - 80:80
     networks:
-      inventory_network_prod:
+      inventory_network_prod_frontend:
         aliases:
           - react
