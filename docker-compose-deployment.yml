@@ -1,41 +1,24 @@
 version: '3'
 
+x-aws-vpc: "vpc-8974f1f4"
+x-aws-loadbalancer: "myloadbalancer"
+
 volumes:
   local_mysql_data: {}
 
-
-networks:
-  inventory_network_prod_backend:
-    name: inventory_network_prod_backend
-    driver: bridge
-    ipam:
-      driver: default
-  inventory_network_prod_frontend:
-    name: inventory_network_prod_frontend
-    driver: bridge
-    ipam:
-      driver: default
-
 services:
+
   app:
     container_name: django-prod
     image: rochavez897/django-inventory-app:1.0
+    restart: always
     depends_on:
       - db
     ports:
       - "8000:8000"
-    volumes:
-      - ./app:/app
     command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000"
-    networks:
-      inventory_network_prod_backend:
-        aliases:
-          - app_back
-      inventory_network_prod_frontend:
-        aliases:
-          - app_front
-  
+      sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
   db:
     container_name: mysql-prod
     image: mysql:5.7
@@ -44,18 +27,11 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
     volumes:
       - local_mysql_data:/var/lib/mysql
-    networks:
-      inventory_network_prod_backend:
-        aliases:
-          - db
   
 
   react:
     container_name: react-prod
-    image: rochavez897/react-prod-inventory-app:1.0
+    image: rochavez897/react-prod-inventory-app:2.0
     ports:
       - 80:80
-    networks:
-      inventory_network_prod_frontend:
-        aliases:
-          - react
+  
